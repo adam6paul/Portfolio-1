@@ -16,6 +16,7 @@ library('psych')
 library('reshape2')
 library('dplyr')
 library('Rcpp')
+library('readr')
 library('tidyverse')
 
 rm(list=ls())
@@ -24,16 +25,67 @@ rm(list=ls())
 
 Data downloaded from Qualtrics as a .csv. Some minor cleaning (removing incompleted responses) has already been done.
 
-```{r bringing in data}
-study1 <- read.csv("~/Master's Program Wake Forest/Research/Online Belonging/Thesis Study 1/Online Course Experiences (Excel cleaned).csv", row.names=NULL, stringsAsFactors=TRUE)
+```{r bringing in data, echo=FALSE}
+study1 <- read_csv("~/Master's Program Wake Forest/Research/Online Belonging/Thesis Study 1/Data for Portfolio/Portfolio 1 - cleaned (pre).csv")
 View(study1)
 ```
 
+>For some reason, this isn't letting the file knit? It's saying the function 'read_csv' can't be found, but the file is opening and 'readr' is the package that adds that function.
+
+### Checking for bad data
+
+Checking for bad actors in the data, before giving credit.
+
+```{r checking the basics}
+summary(study1$Durationinseconds)
+```
+
+```{r Filtering}
+#looking narrowly at people under the 1st quartile (172)
+
+filter(study1, Durationinseconds < 172) %>%
+        arrange(Durationinseconds)
+```
+
+I found no straight-lining within this subset, which suggests to me that the data was all given in good faith. However, I wanted to look at another subset.
+
+I filtered for students that answered positively on two items that previous research suggest should be opposite, belonging and feeling like an outsider.
+
+```{r}
+filter(study1, school_belong > 4, school_outsider > 4)
+#40 students fall into this category
+
+filter(study1, class_belong > 4, class_outsider > 4)
+#18 students fall into class.
+
+filter(study1, school_belong > 4, school_outsider > 4, class_belong > 4, class_outsider > 4)
+#4 students fall into this category. Only one seemed suspicious, but passed along to Shannon to make a decision.
+
+```
+
+Ultimately, we decided to grant credit to all students. That means it's time to move on to cleaning the data.
+
+
+## Data cleaning
+
+Removing identifying information from the dataset.
+
+```{r}
+study1 <- subset(study1, select= -c(StartDate, EndDate, Status,	IPAddress, Progress,
+                Finished, RecordedDate, ResponseId, RecipientLastName, RecipientFirstName,
+                RecipientEmail, ExternalReference, LocationLatitude, LocationLongitude,
+                DistributionChannel, UserLanguage))
+
+```
+
+The dataset opened above actually already has these removed since I am sharing this externally from the people listed on the IRB, but this is how they were removed.
+
+
 ### Descriptives cleaning
 
-##### Gender dummy coding
+Now it's time to begin creating the dummy codes needed for my analyses.
 
-The names of the gender variables have been changed, but I do need to look at them more closely to dummy-code them.
+##### Gender dummy coding
 
 ```{r checking gender demographics}
 study1 %>%
@@ -45,8 +97,7 @@ count(demog_gender_trans, demog_gender_twospirit, demog_gender_genderqueer, demo
 
 ```
 
-We have 12 people that did not identify as either male or female in some way. Due to this small number, there is not much we can do with these individual's gender, so I am going to make two variables, gender_male & gender_nonbinary.
-
+We have 12 people that did not identify as either male or female in some way. Due to this small number, there is not much we can do with the individual gender terms, so I am going to make two variables, gender_male & gender_nonbinary.
 
 
 ```{r making gender dummy code}
