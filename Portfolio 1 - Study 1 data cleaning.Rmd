@@ -32,6 +32,11 @@ View(study1)
 
 >For some reason, this isn't letting the file knit? It's saying the function 'read_csv' can't be found, but the file is opening and 'readr' is the package that adds that function.
 
+Making sure it's a tibble.
+
+as_tibble(study1)
+
+
 ### Checking for bad data
 
 Checking for bad actors in the data, before giving credit.
@@ -99,79 +104,54 @@ count(demog_gender_trans, demog_gender_twospirit, demog_gender_genderqueer, demo
 
 We have 12 people that did not identify as either male or female in some way. Due to this small number, there is not much we can do with the individual gender terms, so I am going to make two variables, gender_male & gender_nonbinary.
 
+gender_male_dummy
+class(study2$gender_nonbinary)
 
-```{r making gender dummy code}
-study1 %>%
-        mutate(demog_gender_nonbin = 
-                       case_when(demog_gender_trans == 1 & demog_gender_female == NA & demog_gender_male == NA ~ 1, 
-                                 demog_gender_female == 1 ~ 0,
-                                 demog_gender_male ==1 ~ 0,
-                                 )) %>%
-        select(demog_gender_nonbin, demog_gender_trans)
+study2 <- as.numeric(study1$gender_nonbinary)
+
+  Already exist
+demog_gender_female
+demog_gender_male
+demog_gender_twospirit
+demog_gender_genderqueer
+demog_gender_other
+
+```{r creating non-binary dummy-code}
+study1 <- study1 %>%
+        mutate(
+        gender_nonbinary=case_when(
+        !demog_gender_male & !demog_gender_female & demog_gender_twospirit | demog_gender_genderqueer | demog_gender_other
+        ~ 1,
+        demog_gender_female | demog_gender_male ~ 0
+        ))
+study1 <- study1 %>%
+        mutate(
+        gender_nonbinary=case_when(
+        is.na(gender_nonbinary) ~ 0
+))
 ```
 
-```{r}
-study1 %>%
-        mutate(V5 = case_when(demog_gender_female == 1 | demog_gender_male == 1 ~ 0
-                              
-                              )) %>%
-        select(V5, demog_gender_female) %>%
-        arrange(V5)
-```
+I spent five hours weeks ago trying to get this to work. It went so poorly I chose to make my dummy coded variables in SPSS. I'm so relieved this worked, and it took a fraction of the time.
 
-cleaning one
-
-```{r}
-test1 <- study1 %>%
-        mutate(demog_gender_nonbin = case_when(is.na(demog_gender_female) & is.na(demog_gender_male) ~ 1 ))
-
-
-
-test1 %>%
-        select(demog_gender_nonbin, demog_gender_female, demog_gender_male, demog_gender_trans) %>%
-        arrange(desc(demog_gender_trans))
-
-```
-
-
-
-& is.na(demog_gender_female) | is.na(demog_gender_male) 
-
-```{r}
-test1 <- study1 %>%
-        mutate(demog_gender_nonbin = case_when((demog_gender_female != 1 | is.na(demog_gender_female) & (demog_gender_trans == 1 | demog_gender_twospirit == 1 | demog_gender_genderqueer == 1 | demog_gender_other == 1 | demog_gender_no_answer == 1)) |
-        (demog_gender_male != 1 & (demog_gender_trans == 1 | demog_gender_twospirit == 1 | demog_gender_genderqueer == 1 | demog_gender_other == 1 | demog_gender_no_answer == 1) ~ 1 )))
-
-test1 %>%
-        select(demog_gender_nonbin, demog_gender_female, demog_gender_male, demog_gender_genderqueer, demog_gender_trans) %>%
-        arrange(desc(demog_gender_genderqueer))
-
-
-
-```
-
-
-
-```{r}
-test1 <- study1 %>%
-        mutate(demog_gender_nonbin = case_when(demog_gender_trans == 1 | demog_gender_twospirit == 1 | demog_gender_genderqueer == 1 | demog_gender_other == 1 | demog_gender_no_answer == 1 ~ 1,  !is.na(demog_gender_male) ~ 0  ))
-
-
-
-test1 %>%
-        select(demog_gender_nonbin, demog_gender_female, demog_gender_male, demog_gender_genderqueer, demog_gender_trans) %>%
-        arrange(desc(demog_gender_genderqueer))
-```
-
-
-select(demog_gender_dich, demog_gender_male, demog_gender_female)
-
+```{r Creating gender dummy code}
+study1 <- study1 %>%
+        mutate(
+        gender_male_dummy=case_when(
+                demog_gender_male == 1 ~ 1,
+                demog_gender_female | gender_nonbinary ~ 0
+                ))
 
 study1 <- study1 %>%
-        mutate(demog_gender_dich = demog_gender_female == 1) 
-        
+        mutate(gender_male_dummy=case_when(
+                is.na(gender_male_dummy) ~ 0
+        ))
+```
+
+      
         
 ##### Race dummy coding
+
+
 
 
 ### Variables of Interest
