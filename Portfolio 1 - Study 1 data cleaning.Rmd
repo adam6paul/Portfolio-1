@@ -1,0 +1,123 @@
+---
+title: "Thesis Porfolio 1"
+author: "Adam"
+date: "4/4/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Descriptives cleaning
+
+##### Gender dummy coding
+
+The names of the gender variables have been changed, but I do need to look at them more closely to dummy-code them.
+
+```{r checking gender demographics}
+study1 %>%
+        filter(is.na(demog_gender_female), is.na(demog_gender_male)) %>%
+        count(demog_gender_trans, demog_gender_twospirit, demog_gender_genderqueer, demog_gender_other, demog_gender_no_answer)
+
+study1 %>%
+count(demog_gender_trans, demog_gender_twospirit, demog_gender_genderqueer, demog_gender_other, demog_gender_no_answer)
+
+```
+
+We have 12 people that did not identify as either male or female in some way. Due to this small number, there is not much we can do with these individual's gender, so I am going to make two variables, gender_male & gender_nonbinary.
+
+
+
+```{r making gender dummy code}
+study1 %>%
+        mutate(demog_gender_nonbin = 
+                       case_when(demog_gender_trans == 1 & demog_gender_female == NA & demog_gender_male == NA ~ 1, 
+                                 demog_gender_female == 1 ~ 0,
+                                 demog_gender_male ==1 ~ 0,
+                                 )) %>%
+        select(demog_gender_nonbin, demog_gender_trans)
+```
+
+```{r}
+study1 %>%
+        mutate(V5 = case_when(demog_gender_female == 1 | demog_gender_male == 1 ~ 0
+                              
+                              )) %>%
+        select(V5, demog_gender_female) %>%
+        arrange(V5)
+```
+
+cleaning one
+
+```{r}
+test1 <- study1 %>%
+        mutate(demog_gender_nonbin = case_when(is.na(demog_gender_female) & is.na(demog_gender_male) ~ 1 ))
+
+
+
+test1 %>%
+        select(demog_gender_nonbin, demog_gender_female, demog_gender_male, demog_gender_trans) %>%
+        arrange(desc(demog_gender_trans))
+
+```
+
+
+
+& is.na(demog_gender_female) | is.na(demog_gender_male) 
+
+```{r}
+test1 <- study1 %>%
+        mutate(demog_gender_nonbin = case_when((demog_gender_female != 1 | is.na(demog_gender_female) & (demog_gender_trans == 1 | demog_gender_twospirit == 1 | demog_gender_genderqueer == 1 | demog_gender_other == 1 | demog_gender_no_answer == 1)) |
+        (demog_gender_male != 1 & (demog_gender_trans == 1 | demog_gender_twospirit == 1 | demog_gender_genderqueer == 1 | demog_gender_other == 1 | demog_gender_no_answer == 1) ~ 1 )))
+
+test1 %>%
+        select(demog_gender_nonbin, demog_gender_female, demog_gender_male, demog_gender_genderqueer, demog_gender_trans) %>%
+        arrange(desc(demog_gender_genderqueer))
+
+
+
+```
+
+
+
+```{r}
+test1 <- study1 %>%
+        mutate(demog_gender_nonbin = case_when(demog_gender_trans == 1 | demog_gender_twospirit == 1 | demog_gender_genderqueer == 1 | demog_gender_other == 1 | demog_gender_no_answer == 1 ~ 1,  !is.na(demog_gender_male) ~ 0  ))
+
+
+
+test1 %>%
+        select(demog_gender_nonbin, demog_gender_female, demog_gender_male, demog_gender_genderqueer, demog_gender_trans) %>%
+        arrange(desc(demog_gender_genderqueer))
+```
+
+
+select(demog_gender_dich, demog_gender_male, demog_gender_female)
+
+
+study1 <- study1 %>%
+        mutate(demog_gender_dich = demog_gender_female == 1) 
+        
+        
+##### Race dummy coding
+
+
+### Variables of Interest
+
+##### Institutional belonging (belong_instit_comp4)
+
+
+##### Class belonging (belong_class_comp4)
+
+
+##### Class disclosure (cdiscl_disclose_comp3)
+
+
+##### Class prompted disclosure (cdiscl__prompt_comp2)
+
+
+#### Group disclosure (gdiscl_disclose_comp3)
+
+
+##### Group prompted disclosure (gdiscl_prompt_comp2)
