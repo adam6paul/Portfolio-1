@@ -5,8 +5,28 @@ date: "4/4/2022"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+The goal of this markdown is to properly clean data using R. Admittedly I think I've decided to do all my future data cleaning in SPSS because I find it easier, but it's worth the practice. Plus I need portfolios.
+
+## Set-up
+
+First, I need to ensure that I have the packages needed.
+
+
+library('psych')
+library('reshape2')
+library('dplyr')
+library('Rcpp')
+library('tidyverse')
+
+rm(list=ls())
+
+##### Bringing in the data
+
+Data downloaded from Qualtrics as a .csv. Some minor cleaning (removing incompleted responses) has already been done.
+
+```{r bringing in data}
+study1 <- read.csv("~/Master's Program Wake Forest/Research/Online Belonging/Thesis Study 1/Online Course Experiences (Excel cleaned).csv", row.names=NULL, stringsAsFactors=TRUE)
+View(study1)
 ```
 
 ### Descriptives cleaning
