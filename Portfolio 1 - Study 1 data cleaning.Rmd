@@ -102,19 +102,12 @@ count(demog_gender_trans, demog_gender_twospirit, demog_gender_genderqueer, demo
 
 ```
 
-We have 12 people that did not identify as either male or female in some way. Due to this small number, there is not much we can do with the individual gender terms, so I am going to make two variables, gender_male & gender_nonbinary.
+We have 12 people that did not identify as either male or female in some way. Due to this small number, there is not much we can do with the individual gender terms, so I am going to make two variables, gender_male & gender_nonbinary. Women serve as the reference class for the 'binary' gender dummy code.
 
-gender_male_dummy
-class(study2$gender_nonbinary)
+> I may need to create the variable first and assign it as a numeric variable. Alternatively, I may need to do this after the first non-binary command to get it to work with the is.na command. Will test when I have finished and reset the workspace.
 
-study2 <- as.numeric(study1$gender_nonbinary)
 
-  Already exist
-demog_gender_female
-demog_gender_male
-demog_gender_twospirit
-demog_gender_genderqueer
-demog_gender_other
+
 
 ```{r creating non-binary dummy-code}
 study1 <- study1 %>%
@@ -124,9 +117,14 @@ study1 <- study1 %>%
         ~ 1,
         demog_gender_female | demog_gender_male ~ 0
         ))
+
+study1$gender_nonbinary <- as.numeric(study1$gender_nonbinary)
+
 study1 <- study1 %>%
         mutate(
         gender_nonbinary=case_when(
+                gender_nonbinary == 1 ~ 1,
+                gender_nonbinary == 0 ~ 0,
         is.na(gender_nonbinary) ~ 0
 ))
 ```
@@ -151,7 +149,33 @@ study1 <- study1 %>%
         
 ##### Race dummy coding
 
+To create the race dummy codes, I first need to create a multiracial composite so that I can avoid adding multiracial people to individual dummy codes. 
 
+Because the individual race codes have NA in all unfilled spots, I need to replace them with 0's to get the code to work correctly.
+
+```{r adding 0 to original code}
+study2 <- study1 %>%
+        mutate(demog_race_51=case_when(is.na(demog_race_51) ~ 0
+                                       ))
+
+```
+
+
+
+```{r creating a multiracial sum}
+study2 <- study1 %>%
+        rowwise() %>%
+        mutate(
+                sum_test=sum(c_across(demog_race_41 + demog_race_89
+        )))
+
+```
+
+demog_race_51 + demog_race_52 + demog_race_59 + demog_race_21
+
+demog_race_22 demog_race_23 
+demog_race_29 demog_race_31 demog_race_32 demog_race_33 demog_race_39 demog_race_11 demog_race_12
+demog_race_13 demog_race_19 demog_race_41 demog_race_42 
 
 
 ### Variables of Interest
@@ -172,3 +196,10 @@ study1 <- study1 %>%
 
 
 ##### Group prompted disclosure (gdiscl_prompt_comp2)
+
+
+### Saving the data!
+
+Temp example of how to do this
+
+write.csv(df, file = "df.csv")
