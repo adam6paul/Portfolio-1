@@ -297,16 +297,54 @@ study1 <- study1 %>%
 
 ### Variables of Interest
 
-Next, we need to create the composite variables for the variables of interest
+Next, we need to create the composite variables for the variables of interest.
 
 
 ##### Institutional belonging (belong_instit_comp4)
 
+One of the four variables needs to be reverse scored, school_outsider.
+
+
+
+```{r reverse scoring outsider}
+study1 <- study1 %>%
+        mutate(school_outsiderR= 8- school_outsider
+                              )
+```
+
+```{r institutional belonging composite}
+
+study1$school_belong_comp4 <- rowMeans(study1[,c("school_belong", "school_outsiderR", "school_comfort", "school_fit_in")], 
+                              na.rm=TRUE)
+```
+
+
+> The explanation I stole from someone else online. Here for my own edification (https://rforhr.com/compositevariable.html).
+
+> Fourth, we will type the name of the rowMeans function. 
+> Fifth, as the first argument, type the name of the data frame object to which the items belong (df). 
+> Sixth, following the data frame name, type in brackets ([ ]), and within the brackets, type a comma (,) followed by the c (combine) function; by placing a comma in front of the c function, we are indicating that we will be referencing the names of columns (i.e., variables); within the c function, list the name of each item in quotation marks (" "), separated by commas (,). 
+> Finally, as the second argument in the rowMeans function, type the na.rm=TRUE argument, which will tell the function to compute the mean for each case that has at least one score for the specified items; in other words, this function allows for the row means to be computed even if there are missing data.
+
+
 
 ##### Class belonging (belong_class_comp4)
 
+```{r reverse scoring outsider}
+study1 <- study1 %>%
+        mutate(class_outsiderR= 8- class_outsider
+        )
+
+```
+
+```{r Class belonging composite}
+study1$class_belong_comp4 <- rowMeans(study1[,c("class_belong", "class_outsiderR", "class_comfort", "class_fit_in")], 
+                              na.rm=TRUE)
+```
+
 
 ##### Class disclosure (cdiscl_disclose_comp3)
+
 
 
 ##### Class prompted disclosure (cdiscl__prompt_comp2)
@@ -320,6 +358,6 @@ Next, we need to create the composite variables for the variables of interest
 
 ### Saving the data!
 
-Temp example of how to do this
+Temp example of how to do this:
 
-write.csv(df, file = "df.csv")
+write.csv(study1, file = "Study1_data_Rclean.csv")
