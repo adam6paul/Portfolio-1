@@ -25,7 +25,7 @@ rm(list=ls())
 
 Data downloaded from Qualtrics as a .csv. Some minor cleaning (removing incompleted responses) has already been done.
 
-```{r bringing in data, echo=FALSE}
+```{r bringing in data}
 study1 <- read_csv("~/Master's Program Wake Forest/Research/Online Belonging/Thesis Study 1/Data for Portfolio/Portfolio 1 - cleaned (pre).csv")
 View(study1)
 ```
@@ -314,7 +314,7 @@ study1 <- study1 %>%
 
 Testing the reliability of the measure. Technically alpha gets masked by ggplot but I can just enable psych for a moment to override it.
 
-library(psych)
+> library(psych) Need to enable psych to get this to work. It's a bit janky but it works for me.
 
 ```{r institutional belonging Reliability}
 alpha(study1[,c("school_belong", "school_outsiderR", "school_comfort", "school_fit_in")])
@@ -401,7 +401,7 @@ study1$cdiscl_prompt_comp2 <- rowMeans(study1[,c("cdiscl_prompt_prof", "cdiscl_p
 
 #### Group disclosure (gdiscl_disclose_comp3)
 
-Composite made of two variables, "gdiscl_private", "gdiscl_self_talk"
+Composite made of two variables, "gdiscl_private", "gdiscl_self_talk". This is the first composite to have missing variables, and it has a lot of them, because a large portion of our sample did not use groups. This will be discussed in portfolio 2.
 
 ```{r group disclosure reliability}
 alpha(study1[,c("gdiscl_private", "gdiscl_self_talk")])
@@ -417,7 +417,7 @@ study1$group_disclose_comp2 <- rowMeans(study1[,c("gdiscl_private", "gdiscl_self
 
 ##### Group prompted disclosure (gdiscl_prompt_comp2)
 
-Composite made of two variables, "gdiscl_prompt_prof", "gdiscl_prompt_encour"
+Composite made of two variables, "gdiscl_prompt_prof", "gdiscl_prompt_encour". Also has missing variables.
 
 ```{r group prompted disclosure reliability}
 alpha(study1[,c("gdiscl_prompt_prof", "gdiscl_prompt_encour")])
@@ -437,4 +437,6 @@ With that, we've finished creating the composite variables! There is no more dat
 
 Temp example of how to do this:
 
+```{r saving data}
 write.csv(study1, file = "Study1_data_R_cleaned.csv")
+```
