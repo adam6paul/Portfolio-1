@@ -302,15 +302,26 @@ Next, we need to create the composite variables for the variables of interest.
 
 ##### Institutional belonging (belong_instit_comp4)
 
+There are four variables that make up institutional belonging, "school_belong", "school_outsider", "school_comfort", "school_fit_in".
+
 One of the four variables needs to be reverse scored, school_outsider.
 
-
-
-```{r reverse scoring outsider}
+```{r reverse scoring school outsider}
 study1 <- study1 %>%
         mutate(school_outsiderR= 8- school_outsider
                               )
 ```
+
+Testing the reliability of the measure. Technically alpha gets masked by ggplot but I can just enable psych for a moment to override it.
+
+```{r institutional belonging Reliability}
+alpha(study1[,c("school_belong", "school_outsiderR", "school_comfort", "school_fit_in")])
+
+```
+
+Reliability is .88.
+
+Creating the actual composite.
 
 ```{r institutional belonging composite}
 
@@ -319,23 +330,31 @@ study1$school_belong_comp4 <- rowMeans(study1[,c("school_belong", "school_outsid
 ```
 
 
-> The explanation I stole from someone else online. Here for my own edification (https://rforhr.com/compositevariable.html).
+> This explains how the above code works I took it from someone else online, and it is here for my own edification (https://rforhr.com/compositevariable.html).
 
-> Fourth, we will type the name of the rowMeans function. 
-> Fifth, as the first argument, type the name of the data frame object to which the items belong (df). 
-> Sixth, following the data frame name, type in brackets ([ ]), and within the brackets, type a comma (,) followed by the c (combine) function; by placing a comma in front of the c function, we are indicating that we will be referencing the names of columns (i.e., variables); within the c function, list the name of each item in quotation marks (" "), separated by commas (,). 
+> Type the name of the rowMeans function. 
+> As the first argument, type the name of the data frame object to which the items belong (study1). 
+> Following the data frame name, type in brackets ([ ]), and within the brackets, type a comma (,) followed by the c (combine) function; by placing a comma in front of the c function, we are indicating that we will be referencing the names of columns (i.e., variables); within the c function, list the name of each item in quotation marks (" "), separated by commas (,). 
 > Finally, as the second argument in the rowMeans function, type the na.rm=TRUE argument, which will tell the function to compute the mean for each case that has at least one score for the specified items; in other words, this function allows for the row means to be computed even if there are missing data.
 
-
+I know that I have no missing responses, but it's good to have that there for future use. And, it doesn't change anything because there's no missing.
 
 ##### Class belonging (belong_class_comp4)
 
-```{r reverse scoring outsider}
+Same as institutional belonging, there are the same four questions (with the prefix class_ this time) and I need to reverse score "class_outsider"
+
+```{r reverse scoring class outsider}
 study1 <- study1 %>%
         mutate(class_outsiderR= 8- class_outsider
         )
 
 ```
+
+```{r class belonging reliability}
+alpha(study1[,c("class_belong", "class_outsiderR", "class_comfort", "class_fit_in")])
+```
+
+Reliability is .91.
 
 ```{r Class belonging composite}
 study1$class_belong_comp4 <- rowMeans(study1[,c("class_belong", "class_outsiderR", "class_comfort", "class_fit_in")], 
@@ -343,21 +362,77 @@ study1$class_belong_comp4 <- rowMeans(study1[,c("class_belong", "class_outsiderR
 ```
 
 
+
 ##### Class disclosure (cdiscl_disclose_comp3)
+
+Similar to above, I need to make a composite of two variables: "cdiscl_private", "cdiscl_self_talk"
+
+```{r class disclosure reliability}
+alpha(study1[,c("cdiscl_private", "cdiscl_self_talk")])
+```
+
+Reliability is .89.
+
+```{r Class disclosure composite}
+study1$class_disclose_comp2 <- rowMeans(study1[,c("cdiscl_private", "cdiscl_self_talk")], 
+                              na.rm=TRUE)
+```
 
 
 
 ##### Class prompted disclosure (cdiscl__prompt_comp2)
+cdiscl_prompt_comp2
+
+Composite made of two variables, "cdiscl_prompt_prof", "cdiscl_prompt_ecour"
+
+```{r class prompted disclosure reliability}
+alpha(study1[,c("cdiscl_prompt_prof", "cdiscl_prompt_ecour")])
+```
+
+Reliability is .83.
+
+```{r Class prompted disclosure composite}
+study1$cdiscl_prompt_comp2 <- rowMeans(study1[,c("cdiscl_prompt_prof", "cdiscl_prompt_ecour")], 
+                              na.rm=TRUE)
+```
 
 
 #### Group disclosure (gdiscl_disclose_comp3)
 
+Composite made of two variables, "gdiscl_private", "gdiscl_self_talk"
+
+```{r group disclosure reliability}
+alpha(study1[,c("gdiscl_private", "gdiscl_self_talk")])
+```
+
+Reliability is .90.
+
+```{r Group disclosure composite}
+study1$group_disclose_comp2 <- rowMeans(study1[,c("gdiscl_private", "gdiscl_self_talk")], 
+                              na.rm=TRUE)
+```
+
 
 ##### Group prompted disclosure (gdiscl_prompt_comp2)
+
+Composite made of two variables, "gdiscl_prompt_prof", "gdiscl_prompt_encour"
+
+```{r group prompted disclosure reliability}
+alpha(study1[,c("gdiscl_prompt_prof", "gdiscl_prompt_encour")])
+```
+
+Reliability is .79.
+
+```{r Group prompted disclosure composite}
+study1$gdiscl_prompt_comp2 <- rowMeans(study1[,c("gdiscl_prompt_prof", "gdiscl_prompt_encour")], 
+                              na.rm=TRUE)
+```
+
+With that, we've finished creating the composite variables! There is no more data cleaning that needs to be done, so this portfolio is finished.
 
 
 ### Saving the data!
 
 Temp example of how to do this:
 
-write.csv(study1, file = "Study1_data_Rclean.csv")
+write.csv(study1, file = "Study1_data_R_cleaned.csv")
