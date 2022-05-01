@@ -314,6 +314,8 @@ study1 <- study1 %>%
 
 Testing the reliability of the measure. Technically alpha gets masked by ggplot but I can just enable psych for a moment to override it.
 
+library(psych)
+
 ```{r institutional belonging Reliability}
 alpha(study1[,c("school_belong", "school_outsiderR", "school_comfort", "school_fit_in")])
 
