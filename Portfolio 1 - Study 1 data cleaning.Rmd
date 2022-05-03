@@ -11,21 +11,21 @@ The goal of this markdown is to properly clean data using R. Admittedly I think 
 
 First, I need to ensure that I have the packages needed.
 
-
-library('psych')
+```{r packages, echo=TRUE, message=FALSE}
 library('reshape2')
 library('dplyr')
 library('Rcpp')
 library('readr')
 library('tidyverse')
+library('psych')
+```
 
-rm(list=ls())
 
-##### Bringing in the data
+#### Bringing in the data
 
-Data downloaded from Qualtrics as a .csv. Some minor cleaning (removing incompleted responses) has already been done.
+Data downloaded from Qualtrics as a .csv. Some minor cleaning (removing incompleted responses) has already been done in excel, as well as removing the identifiers since I'm sharing this data as a part of the project. Code for that removal is also incldued later.
 
-```{r bringing in data}
+```{r bringing in data, echo=TRUE, collapse=TRUE, message=FALSE}
 study1 <- read_csv("~/Master's Program Wake Forest/Research/Online Belonging/Thesis Study 1/Data for Portfolio/Portfolio 1 - cleaned (pre).csv")
 View(study1)
 ```
@@ -73,15 +73,14 @@ Ultimately, we decided to grant credit to all students. That means it's time to 
 
 ## Data cleaning
 
-Removing identifying information from the dataset.
+Code to remove identifying information from the dataset.
 
-```{r}
+
 study1 <- subset(study1, select= -c(StartDate, EndDate, Status,	IPAddress, Progress,
                 Finished, RecordedDate, ResponseId, RecipientLastName, RecipientFirstName,
                 RecipientEmail, ExternalReference, LocationLatitude, LocationLongitude,
                 DistributionChannel, UserLanguage))
 
-```
 
 The dataset opened above actually already has these removed since I am sharing this externally from the people listed on the IRB, but this is how they were removed.
 
@@ -414,7 +413,7 @@ study1 <- study1 %>%
 Next, we need to create the composite variables for the variables of interest.
 
 
-##### Institutional belonging (belong_instit_comp4)
+#### Institutional belonging (belong_instit_comp4)
 
 There are four variables that make up institutional belonging, "school_belong", "school_outsider", "school_comfort", "school_fit_in".
 
@@ -427,8 +426,6 @@ study1 <- study1 %>%
 ```
 
 Testing the reliability of the measure. Technically alpha gets masked by ggplot but I can just enable psych for a moment to override it.
-
-> library(psych) Need to enable psych to get this to work. It's a bit janky but it works for me.
 
 ```{r institutional belonging Reliability}
 alpha(study1[,c("school_belong", "school_outsiderR", "school_comfort", "school_fit_in")])
@@ -455,7 +452,7 @@ study1$school_belong_comp4 <- rowMeans(study1[,c("school_belong", "school_outsid
 
 I know that I have no missing responses, but it's good to have that there for future use. And, it doesn't change anything because there's no missing.
 
-##### Class belonging (belong_class_comp4)
+#### Class belonging (belong_class_comp4)
 
 Same as institutional belonging, there are the same four questions (with the prefix class_ this time) and I need to reverse score "class_outsider"
 
@@ -479,7 +476,7 @@ study1$class_belong_comp4 <- rowMeans(study1[,c("class_belong", "class_outsiderR
 
 
 
-##### Class disclosure (cdiscl_disclose_comp3)
+#### Class disclosure (cdiscl_disclose_comp3)
 
 Similar to above, I need to make a composite of two variables: "cdiscl_private", "cdiscl_self_talk"
 
@@ -496,8 +493,7 @@ study1$class_disclose_comp2 <- rowMeans(study1[,c("cdiscl_private", "cdiscl_self
 
 
 
-##### Class prompted disclosure (cdiscl__prompt_comp2)
-cdiscl_prompt_comp2
+#### Class prompted disclosure (cdiscl__prompt_comp2)
 
 Composite made of two variables, "cdiscl_prompt_prof", "cdiscl_prompt_ecour"
 
@@ -548,8 +544,6 @@ With that, we've finished creating the composite variables! There is no more dat
 
 
 ### Saving the data!
-
-Temp example of how to do this:
 
 ```{r saving data}
 write.csv(study1, file = "Study1_data_R_cleaned.csv")
