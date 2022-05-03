@@ -30,11 +30,6 @@ study1 <- read_csv("~/Master's Program Wake Forest/Research/Online Belonging/The
 View(study1)
 ```
 
->For some reason, this isn't letting the file knit? It's saying the function 'read_csv' can't be found, but the file is opening and 'readr' is the package that adds that function.
-
-Making sure it's a tibble.
-
-as_tibble(study1)
 
 
 ### Checking for bad data
