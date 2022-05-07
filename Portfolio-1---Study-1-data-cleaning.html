@@ -195,7 +195,7 @@ summary {
 </div>
 
 
-<p>The goal of this markdown is to properly clean data using R. Admittedly I think I’ve decided to do all my future data cleaning in SPSS because I find it easier, but it’s worth the practice. Plus I need portfolios.</p>
+<p>The goal of this markdown is to properly clean data using R.</p>
 <div id="set-up" class="section level2">
 <h2>Set-up</h2>
 <p>First, I need to ensure that I have the packages needed.</p>
@@ -205,19 +205,39 @@ library(&#39;Rcpp&#39;)
 library(&#39;readr&#39;)
 library(&#39;tidyverse&#39;)
 library(&#39;psych&#39;)</code></pre>
-<div id="bringing-in-the-data" class="section level4">
-<h4>Bringing in the data</h4>
-<p>Data downloaded from Qualtrics as a .csv. Some minor cleaning (removing incompleted responses) has already been done in excel, as well as removing the identifiers since I’m sharing this data as a part of the project. Code for that removal is also incldued later.</p>
-<pre class="r"><code>study1 &lt;- read_csv(&quot;~/Master&#39;s Program Wake Forest/Research/Online Belonging/Thesis Study 1/Data for Portfolio/Portfolio 1 - cleaned (pre).csv&quot;)
+<div id="bringing-in-the-data" class="section level3">
+<h3>Bringing in the data</h3>
+<pre class="r"><code>study1 &lt;- read_csv(&quot;~/GitHub/Portfolio-1/Portfolio 1 - cleaned (pre).csv&quot;)
+
+# Ensuring the dataframe is a tibble.
+as_tibble(study1)
+## # A tibble: 301 x 66
+##    Durationinseconds school_belong school_fit_in school_outsider school_comfort
+##                &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;           &lt;dbl&gt;          &lt;dbl&gt;
+##  1               245             4             4               5              4
+##  2               249             6             6               2              6
+##  3               170             6             6               2              6
+##  4               281             5             4               2              4
+##  5               108             4             6               2              5
+##  6               458             5             5               3              6
+##  7               128             5             5               4              6
+##  8               291             6             6               2              6
+##  9               123             5             5               5              6
+## 10               414             2             1               6              5
+## # ... with 291 more rows, and 61 more variables: school_uncertain &lt;dbl&gt;,
+## #   class_department &lt;chr&gt;, class_name &lt;chr&gt;, class_belong &lt;dbl&gt;,
+## #   class_fit_in &lt;dbl&gt;, class_outsider &lt;dbl&gt;, class_comfort &lt;dbl&gt;,
+## #   class_uncertain &lt;dbl&gt;, class_know_prior &lt;dbl&gt;, cdiscl_private &lt;dbl&gt;,
+## #   cdiscl_self_talk &lt;dbl&gt;, class_speak_up &lt;dbl&gt;, class_share_opinion &lt;dbl&gt;,
+## #   class_active_partic &lt;dbl&gt;, cdiscl_prompt_prof &lt;dbl&gt;,
+## #   cdiscl_prompt_ecour &lt;dbl&gt;, group_use &lt;dbl&gt;, group_consistency &lt;dbl&gt;, ...
+
+#Taking a look at the table.
 View(study1)</code></pre>
-<blockquote>
-<p>For some reason, this isn’t letting the file knit? It’s saying the function ‘read_csv’ can’t be found, but the file is opening and ‘readr’ is the package that adds that function.</p>
-</blockquote>
-<p>Making sure it’s a tibble.</p>
-<p>as_tibble(study1)</p>
 </div>
 <div id="checking-for-bad-data" class="section level3">
 <h3>Checking for bad data</h3>
+<p>In a unique step, I needed to look at participants to see if any data was suspect, before we could give credit.</p>
 <p>Checking for bad actors in the data, before giving credit.</p>
 <pre class="r"><code>summary(study1$Durationinseconds)</code></pre>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -323,14 +343,14 @@ filter(study1, school_belong &gt; 4, school_outsider &gt; 4, class_belong &gt; 4
 </div>
 <div id="data-cleaning" class="section level2">
 <h2>Data cleaning</h2>
-<p>Code to remove identifying information from the dataset.</p>
+<p>Code to remove identifying information from the dataset. Since I am sharing actual data, the data has already been deidentified in order to comply with the IRB. However, her is the code that was used to do so.</p>
 <p>study1 &lt;- subset(study1, select= -c(StartDate, EndDate, Status, IPAddress, Progress, Finished, RecordedDate, ResponseId, RecipientLastName, RecipientFirstName, RecipientEmail, ExternalReference, LocationLatitude, LocationLongitude, DistributionChannel, UserLanguage))</p>
-<p>The dataset opened above actually already has these removed since I am sharing this externally from the people listed on the IRB, but this is how they were removed.</p>
-<div id="descriptives-cleaning" class="section level3">
-<h3>Descriptives cleaning</h3>
+</div>
+<div id="descriptives-cleaning" class="section level2">
+<h2>Descriptives cleaning</h2>
 <p>Now it’s time to begin creating the dummy codes needed for my analyses.</p>
-<div id="gender-dummy-coding" class="section level5">
-<h5>Gender dummy coding</h5>
+<div id="gender-dummy-coding" class="section level4">
+<h4>Gender dummy coding</h4>
 <p>First, I need to look at whether we have non-binary individuals in the dataset.</p>
 <pre class="r"><code>study1 %&gt;%
         filter(is.na(demog_gender_female), is.na(demog_gender_male)) %&gt;%
@@ -361,9 +381,6 @@ count(demog_gender_trans, demog_gender_twospirit, demog_gender_genderqueer, demo
 ## 9                 NA NA                                      NA               NA
 ## # ... with 2 more variables: demog_gender_no_answer &lt;dbl&gt;, n &lt;int&gt;</code></pre>
 <p>We have 12 people that did not identify as either male or female in some way. Due to this small number, there is not much we can do with the individual gender terms, so I am going to make two variables, gender_male &amp; gender_nonbinary. Women serve as the reference class for the ‘binary’ gender dummy code.</p>
-<blockquote>
-<p>I may need to create the variable first and assign it as a numeric variable. Alternatively, I may need to do this after the first non-binary command to get it to work with the is.na command. Will test when I have finished and reset the workspace.</p>
-</blockquote>
 <p>The code below creates the non-binary variable based on if someone answered yes to any of the demographic non-binary options, and a 0 if they answered to either of the binary answers. Then, the second set of code makes it so that NA answers are coded as non-binary as well.</p>
 <pre class="r"><code>study1 &lt;- study1 %&gt;%
         mutate(
@@ -382,7 +399,7 @@ study1 &lt;- study1 %&gt;%
                 gender_nonbinary == 0 ~ 0,
         is.na(gender_nonbinary) ~ 1
 ))</code></pre>
-<p>I spent five hours weeks ago trying to get this to work. It went so poorly I chose to make my dummy coded variables in SPSS. I’m so relieved this worked.</p>
+<p>I spent five hours weeks ago trying to get this to work. It went so poorly I chose to make my dummy coded variables in SPSS for my actual thesis. So, I’m pretty pleased to have gotten this to work.</p>
 <p>Below, I create the dummy code for the gender binary.</p>
 <pre class="r"><code>study1 &lt;- study1 %&gt;%
         mutate(
@@ -390,10 +407,9 @@ study1 &lt;- study1 %&gt;%
                 demog_gender_male == 1 ~ 1,
                 demog_gender_female | gender_nonbinary ~ 0
                 ))</code></pre>
-<p>This code does not leave anyone NA, so there is no need to add that line.</p>
 </div>
-<div id="race-dummy-coding" class="section level5">
-<h5>Race dummy coding</h5>
+<div id="race-dummy-coding" class="section level3">
+<h3>Race dummy coding</h3>
 <p>To create the race dummy codes, I first need to create a multiracial composite so that I can avoid adding multiracial people to individual dummy codes.</p>
 <p>Because the individual race codes have NA in all unfilled spots, I need to replace them with 0’s to get the code to work correctly. The code is a little hideous and not consolidated, but I prefer to look and see them individually, especially because I can collapse this code in the chunk.</p>
 <pre class="r"><code>study1 &lt;- study1 %&gt;%
@@ -521,9 +537,8 @@ study1 &lt;- study1 %&gt;%
                 multiracial_sum == 0 ~ 0
         ))</code></pre>
 <p>Now, I can make the racial composites. Due to sample size constraints I am going to have to make composites for several races. All composites will include their respective races and did not answer more than one race.</p>
-</div>
-<div id="white-composite" class="section level5">
-<h5>White composite</h5>
+<div id="white-composite" class="section level4">
+<h4>White composite</h4>
 <p>Composed of individuals who identified as European/European American, Middle Eastern/Middle Eastern American, Other White; or demog_race_51, demog_race_52, and demog_race_59.</p>
 <pre class="r"><code>study1 &lt;- study1 %&gt;%
         mutate(
@@ -540,9 +555,9 @@ study1 &lt;- study1 %&gt;%
           is.na(race_white) ~ 0 
           ))</code></pre>
 </div>
-<div id="black-composite" class="section level5">
-<h5>Black composite</h5>
-<p>Composed of individuals who identified as African American/Black, African, Caribbean, Other Black; or demog_race_21, demog_race_22, demog_race_23, and demog_race_29</p>
+<div id="black-composite" class="section level4">
+<h4>Black composite</h4>
+<p>Composed of individuals who identified as African American/Black, African, Caribbean, Other Black; or demog_race_21, demog_race_22, demog_race_23, and demog_race_29.</p>
 <pre class="r"><code>study1 &lt;- study1 %&gt;%
         mutate(
         race_black=case_when(
@@ -558,8 +573,8 @@ study1 &lt;- study1 %&gt;%
           is.na(race_black) ~ 0 
           ))</code></pre>
 </div>
-<div id="hispanic-composite" class="section level5">
-<h5>Hispanic composite</h5>
+<div id="hispanic-composite" class="section level4">
+<h4>Hispanic composite</h4>
 <p>Composed of individuals who identified as Mexican American/Chicano, Puerto Rican, Central American, Other Hispanic or Latino; or demog_race_31, demog_race_32, demog_race_33, and demog_race_39.</p>
 <pre class="r"><code>study1 &lt;- study1 %&gt;%
         mutate(
@@ -576,8 +591,8 @@ study1 &lt;- study1 %&gt;%
           is.na(race_hispanic) ~ 0 
           ))</code></pre>
 </div>
-<div id="asian-composite" class="section level5">
-<h5>Asian composite</h5>
+<div id="asian-composite" class="section level4">
+<h4>Asian composite</h4>
 <p>Composed of individuals who identified as East Asian (e.g., Chinese, Japanese, Korean, Taiwanese), Southeast Asian (e.g., Filipino, Vietnamese, Indonesian), South Asian (e.g., Pakistani, Indian, Nepalese, Sri Lankan), Other Asian; or demog_race_11, demog_race_12, demog_race_13, and demog_race_19.</p>
 <pre class="r"><code>study1 &lt;- study1 %&gt;%
         mutate(
@@ -594,8 +609,8 @@ study1 &lt;- study1 %&gt;%
           is.na(race_asian) ~ 0 
           ))</code></pre>
 </div>
-<div id="native-composite" class="section level5">
-<h5>Native composite</h5>
+<div id="native-composite" class="section level4">
+<h4>Native composite</h4>
 <p>Composed of individuals who identified as Native Hawaiian or Other Pacific Islander, American Indian or Alaskan Native; or demog_race_41 and demog_race_42.</p>
 <pre class="r"><code>study1 &lt;- study1 %&gt;%
         mutate(
@@ -611,19 +626,46 @@ study1 &lt;- study1 %&gt;%
           race_native == 0 ~ 0,
           is.na(race_native) ~ 0 
           ))</code></pre>
+<p>With these in hand, I should make sure they are all necessary.</p>
+<pre class="r"><code>table(study1$race_white)
+## 
+##   0   1 
+##  93 208
+table(study1$race_black)
+## 
+##   0   1 
+## 265  36
+table(study1$race_asian)
+## 
+##   0   1 
+## 254  47
+table(study1$race_hispanic)
+## 
+##   0   1 
+## 261  40
+table(study1$race_native)
+## 
+##   0   1 
+## 296   5
+table(study1$race_multiracial)
+## 
+##   0   1 
+## 258  43</code></pre>
+<p>We have participants of every racial demographic.</p>
 </div>
 </div>
-<div id="variables-of-interest" class="section level3">
-<h3>Variables of Interest</h3>
+</div>
+<div id="variables-of-interest" class="section level2">
+<h2>Variables of Interest</h2>
 <p>Next, we need to create the composite variables for the variables of interest.</p>
-<div id="institutional-belonging-belong_instit_comp4" class="section level4">
-<h4>Institutional belonging (belong_instit_comp4)</h4>
+<div id="institutional-belonging" class="section level3">
+<h3>Institutional belonging</h3>
 <p>There are four variables that make up institutional belonging, “school_belong”, “school_outsider”, “school_comfort”, “school_fit_in”.</p>
 <p>One of the four variables needs to be reverse scored, school_outsider.</p>
 <pre class="r"><code>study1 &lt;- study1 %&gt;%
         mutate(school_outsiderR= 8- school_outsider
                               )</code></pre>
-<p>Testing the reliability of the measure. Technically alpha gets masked by ggplot but I can just enable psych for a moment to override it.</p>
+<p>Testing the reliability of the measure.</p>
 <pre class="r"><code>alpha(study1[,c(&quot;school_belong&quot;, &quot;school_outsiderR&quot;, &quot;school_comfort&quot;, &quot;school_fit_in&quot;)])</code></pre>
 <pre><code>## 
 ## Reliability analysis   
@@ -666,16 +708,14 @@ study1 &lt;- study1 %&gt;%
 <pre class="r"><code>study1$school_belong_comp4 &lt;- rowMeans(study1[,c(&quot;school_belong&quot;, &quot;school_outsiderR&quot;, &quot;school_comfort&quot;, &quot;school_fit_in&quot;)], 
                               na.rm=TRUE)</code></pre>
 <blockquote>
-<p>This explains how the above code works I took it from someone else online, and it is here for my own edification (<a href="https://rforhr.com/compositevariable.html" class="uri">https://rforhr.com/compositevariable.html</a>).</p>
+<p>This explains how the above code works. I took it from someone else online, and it is here for my own edification (<a href="https://rforhr.com/compositevariable.html" class="uri">https://rforhr.com/compositevariable.html</a>).</p>
 </blockquote>
-<blockquote>
 <p>Type the name of the rowMeans function. As the first argument, type the name of the data frame object to which the items belong (study1). Following the data frame name, type in brackets ([ ]), and within the brackets, type a comma (,) followed by the c (combine) function; by placing a comma in front of the c function, we are indicating that we will be referencing the names of columns (i.e., variables); within the c function, list the name of each item in quotation marks (&quot; &quot;), separated by commas (,). Finally, as the second argument in the rowMeans function, type the na.rm=TRUE argument, which will tell the function to compute the mean for each case that has at least one score for the specified items; in other words, this function allows for the row means to be computed even if there are missing data.</p>
-</blockquote>
-<p>I know that I have no missing responses, but it’s good to have that there for future use. And, it doesn’t change anything because there’s no missing.</p>
+<p>I know that I have no missing responses, but it’s good to have that there for future use. And, it doesn’t change anything because there’s no one missing.</p>
 </div>
-<div id="class-belonging-belong_class_comp4" class="section level4">
-<h4>Class belonging (belong_class_comp4)</h4>
-<p>Same as institutional belonging, there are the same four questions (with the prefix class_ this time) and I need to reverse score “class_outsider”</p>
+<div id="class-belonging" class="section level3">
+<h3>Class belonging</h3>
+<p>Same as institutional belonging, there are the same four questions (with the prefix class_ this time) and I need to reverse score “class_outsider”.</p>
 <pre class="r"><code>study1 &lt;- study1 %&gt;%
         mutate(class_outsiderR= 8- class_outsider
         )</code></pre>
@@ -720,9 +760,9 @@ study1 &lt;- study1 %&gt;%
 <pre class="r"><code>study1$class_belong_comp4 &lt;- rowMeans(study1[,c(&quot;class_belong&quot;, &quot;class_outsiderR&quot;, &quot;class_comfort&quot;, &quot;class_fit_in&quot;)], 
                               na.rm=TRUE)</code></pre>
 </div>
-<div id="class-disclosure-cdiscl_disclose_comp3" class="section level4">
-<h4>Class disclosure (cdiscl_disclose_comp3)</h4>
-<p>Similar to above, I need to make a composite of two variables: “cdiscl_private”, “cdiscl_self_talk”</p>
+<div id="class-disclosure" class="section level3">
+<h3>Class disclosure</h3>
+<p>Similar to above, I need to make a composite of two variables: “cdiscl_private” and “cdiscl_self_talk”.</p>
 <pre class="r"><code>alpha(study1[,c(&quot;cdiscl_private&quot;, &quot;cdiscl_self_talk&quot;)])</code></pre>
 <pre><code>## 
 ## Reliability analysis   
@@ -752,9 +792,9 @@ study1 &lt;- study1 %&gt;%
 <pre class="r"><code>study1$class_disclose_comp2 &lt;- rowMeans(study1[,c(&quot;cdiscl_private&quot;, &quot;cdiscl_self_talk&quot;)], 
                               na.rm=TRUE)</code></pre>
 </div>
-<div id="class-prompted-disclosure-cdiscl__prompt_comp2" class="section level4">
-<h4>Class prompted disclosure (cdiscl__prompt_comp2)</h4>
-<p>Composite made of two variables, “cdiscl_prompt_prof”, “cdiscl_prompt_ecour”</p>
+<div id="class-prompted-disclosure" class="section level3">
+<h3>Class prompted disclosure</h3>
+<p>Composite made of two variables, “cdiscl_prompt_prof” and “cdiscl_prompt_ecour”.</p>
 <pre class="r"><code>alpha(study1[,c(&quot;cdiscl_prompt_prof&quot;, &quot;cdiscl_prompt_ecour&quot;)])</code></pre>
 <pre><code>## 
 ## Reliability analysis   
@@ -787,9 +827,10 @@ study1 &lt;- study1 %&gt;%
 <pre class="r"><code>study1$cdiscl_prompt_comp2 &lt;- rowMeans(study1[,c(&quot;cdiscl_prompt_prof&quot;, &quot;cdiscl_prompt_ecour&quot;)], 
                               na.rm=TRUE)</code></pre>
 </div>
-<div id="group-disclosure-gdiscl_disclose_comp3" class="section level4">
-<h4>Group disclosure (gdiscl_disclose_comp3)</h4>
-<p>Composite made of two variables, “gdiscl_private”, “gdiscl_self_talk”. This is the first composite to have missing variables, and it has a lot of them, because a large portion of our sample did not use groups. This will be discussed in portfolio 2.</p>
+<div id="group-disclosure." class="section level3">
+<h3>Group disclosure.</h3>
+<p>Reports on how much participants disclosed to their group. Composite made of two variables; “gdiscl_private” and “gdiscl_self_talk”.</p>
+<p>This is the first composite to have missing variables, and it has a lot of them, because a large portion of our sample did not use groups. This will be discussed in portfolio 2.</p>
 <pre class="r"><code>alpha(study1[,c(&quot;gdiscl_private&quot;, &quot;gdiscl_self_talk&quot;)])</code></pre>
 <pre><code>## 
 ## Reliability analysis   
@@ -818,9 +859,10 @@ study1 &lt;- study1 %&gt;%
 <p>Reliability is .90.</p>
 <pre class="r"><code>study1$group_disclose_comp2 &lt;- rowMeans(study1[,c(&quot;gdiscl_private&quot;, &quot;gdiscl_self_talk&quot;)], 
                               na.rm=TRUE)</code></pre>
-<div id="group-prompted-disclosure-gdiscl_prompt_comp2" class="section level5">
-<h5>Group prompted disclosure (gdiscl_prompt_comp2)</h5>
-<p>Composite made of two variables, “gdiscl_prompt_prof”, “gdiscl_prompt_encour”. Also has missing variables.</p>
+</div>
+<div id="group-prompted-disclosure" class="section level3">
+<h3>Group prompted disclosure</h3>
+<p>Composite made of two variables, “gdiscl_prompt_prof” and “gdiscl_prompt_encour”. Also has missing variables.</p>
 <pre class="r"><code>alpha(study1[,c(&quot;gdiscl_prompt_prof&quot;, &quot;gdiscl_prompt_encour&quot;)])</code></pre>
 <pre><code>## 
 ## Reliability analysis   
@@ -855,10 +897,12 @@ study1 &lt;- study1 %&gt;%
 <p>With that, we’ve finished creating the composite variables! There is no more data cleaning that needs to be done, so this portfolio is finished.</p>
 </div>
 </div>
-</div>
-<div id="saving-the-data" class="section level3">
-<h3>Saving the data!</h3>
+<div id="saving-the-data" class="section level2">
+<h2>Saving the data!</h2>
 <pre class="r"><code>write.csv(study1, file = &quot;Study1_data_R_cleaned.csv&quot;)</code></pre>
+<div id="wrapping-up" class="section level3">
+<h3>Wrapping up</h3>
+<p>I don’t like data cleaning in R. It’s clunky, weird, and makes it a lot harder than it needs to be. I’ve found out that most of my committee cleans their data in SPSS then moves it to R (or Mplus in Keita’s case). I think I’m going to do the same, but I’m glad I know how to do this now.</p>
 </div>
 </div>
 
